@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_clean_bloc/domain/use%20cases/login_use_case.dart';
-import 'package:flutter_auth_clean_bloc/presentation/bloc/auth_bloc.dart';
-import 'package:flutter_auth_clean_bloc/presentation/routes/app_routes.dart';
-import 'package:flutter_auth_clean_bloc/presentation/theme/app_theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+import 'data/datasources/book_local_data_source.dart';
+import 'data/datasources/book_remote_data_source.dart';
+import 'data/repositories/book_repository_impl.dart';
+import 'domain/repositories/book_repository.dart';
+import 'presentation/library_app.dart';
+import 'presentation/library_cubit.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AuthBloc(loginUseCase: LoginUseCase()),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
-        initialRoute: AppRoutes.splash,
-        onGenerateRoute: AppRoutes.generateRoute,
-      ),
-    );
-  }
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await SharedPreferences.getInstance();
+  final BookRepository repository = BookRepositoryImpl(
+    remote: BookRemoteDataSource(client: http.Client()),
+    local: BookLocalDataSource(preferences),
+  );
+  runApp(
+    BlocProvider(
+      create: (_) => LibraryCubit(repository)..loadHome(),
+      child: const BookishApp(),
+    ),
+  );
 }
