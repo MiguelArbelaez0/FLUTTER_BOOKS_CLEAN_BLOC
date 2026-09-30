@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_books_clean_bloc/domain/entities/book.dart';
+import 'package:flutter_books_clean_bloc/data/models/book_model.dart';
 
 void main() {
   group('Book', () {
     test('parses Open Library fields and builds a cover URL', () {
-      final book = Book.fromJson({
+      final model = BookModel.fromJson({
         'key': '/works/OL123W',
         'title': 'The Left Hand of Darkness',
         'author_name': ['Ursula K. Le Guin'],
@@ -14,6 +14,7 @@ void main() {
         'isbn': ['9780441478125'],
         'subject': ['Science fiction', 'Gender identity'],
       });
+      final book = model.toEntity();
       expect(book.id, '/works/OL123W');
       expect(book.authorLabel, 'Ursula K. Le Guin');
       expect(book.coverUrl, 'https://covers.openlibrary.org/b/id/12345-L.jpg');
@@ -22,12 +23,13 @@ void main() {
     });
 
     test('uses safe defaults when API fields are missing', () {
-      final book = Book.fromJson({'key': '/works/OL0W'});
+      final model = BookModel.fromJson({'key': '/works/OL0W'});
+      final book = model.toEntity();
       expect(book.title, 'Sin título');
       expect(book.authorLabel, 'Autor desconocido');
       expect(book.coverUrl, isNull);
       expect(book.firstPublishYear, isNull);
-      expect(Book.fromJson(book.toJson()).id, book.id);
+      expect(BookModel.fromEntity(book).toJson()['id'], book.id);
     });
   });
 }

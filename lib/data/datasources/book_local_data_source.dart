@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/book.dart';
+import '../models/book_model.dart';
 
 class BookLocalDataSource {
   BookLocalDataSource(this._preferences);
@@ -15,7 +16,8 @@ class BookLocalDataSource {
     try {
       return (jsonDecode(stored) as List)
           .whereType<Map<String, dynamic>>()
-          .map(Book.fromJson)
+          .map(BookModel.fromJson)
+          .map((model) => model.toEntity())
           .toList();
     } on FormatException {
       return [];
@@ -24,6 +26,8 @@ class BookLocalDataSource {
 
   Future<void> saveFavorites(List<Book> books) => _preferences.setString(
     _key,
-    jsonEncode(books.map((book) => book.toJson()).toList()),
+    jsonEncode(
+      books.map((book) => BookModel.fromEntity(book).toJson()).toList(),
+    ),
   );
 }

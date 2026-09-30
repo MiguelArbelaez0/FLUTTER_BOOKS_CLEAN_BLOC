@@ -39,9 +39,9 @@ Presentation → Domain → Data
 
 - **Presentation:** aplicación, navegación, widgets y `LibraryCubit` con su estado de carga, resultados, favoritos y errores. No contiene llamadas HTTP.
 - **Domain:** entidad `Book`, contrato `BookRepository` y casos de uso para buscar libros y gestionar favoritos.
-- **Data:** acceso remoto a Open Library, acceso local a favoritos y la implementación de `BookRepository`.
+- **Data:** `BookModel` adapta JSON de Open Library y favoritos locales a la entidad `Book`; incluye las fuentes remota y local y la implementación de `BookRepository`.
 
-`main.dart` crea las fuentes de datos, el repositorio y el `Cubit`, y los conecta con `BlocProvider`. El modelo JSON de libro está integrado en la entidad `Book`; el proyecto no tiene una carpeta independiente de modelos. Tampoco hay una carpeta `core/` ni clases de eventos BLoC separadas.
+`main.dart` crea las fuentes de datos, el repositorio y el `Cubit`, y los conecta con `BlocProvider`. El modelo de Data se convierte a la entidad de Domain en los data sources. No hay una carpeta `core/` ni clases de eventos BLoC separadas.
 
 ## Estructura actual
 
@@ -51,6 +51,8 @@ lib/
 │   ├── datasources/
 │   │   ├── book_local_data_source.dart
 │   │   └── book_remote_data_source.dart
+│   ├── models/
+│   │   └── book_model.dart
 │   └── repositories/
 │       └── book_repository_impl.dart
 ├── domain/

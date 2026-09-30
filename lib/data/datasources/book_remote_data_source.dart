@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../domain/entities/book.dart';
+import '../models/book_model.dart';
 
 class BookRemoteDataSource {
   BookRemoteDataSource({required http.Client client}) : _client = client;
@@ -30,7 +31,11 @@ class BookRemoteDataSource {
       final decoded =
           jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
       final docs = decoded['docs'] as List? ?? const [];
-      return docs.whereType<Map<String, dynamic>>().map(Book.fromJson).toList();
+      return docs
+          .whereType<Map<String, dynamic>>()
+          .map(BookModel.fromJson)
+          .map((model) => model.toEntity())
+          .toList();
     } on FormatException {
       throw BookApiException('La respuesta del catálogo no se pudo leer.');
     } on TypeError {
