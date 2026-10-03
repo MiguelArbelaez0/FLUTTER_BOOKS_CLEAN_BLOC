@@ -1,131 +1,179 @@
-# FLUTTER BOOKS CLEAN BLOC
+# Flutter Books Clean BLoC
 
-Aplicación de biblioteca digital desarrollada con Flutter para descubrir, buscar y consultar libros del catálogo real de Open Library. El proyecto utiliza una separación inspirada en Clean Architecture, el patrón Repository, casos de uso y `flutter_bloc` mediante un `Cubit`. La composición de dependencias se realiza manualmente en `main.dart`.
+A Flutter application for discovering, searching, and consulting books through the Open Library API, built with a clean, maintainable architecture using BLoC/Cubit.
 
-## Características
+## 📱 Overview
 
-- Inicio con secciones de libros destacados, en tendencia, recomendaciones editoriales y más para descubrir. Cada sección carga resultados reales mediante búsquedas en Open Library.
-- Búsqueda por texto libre con debounce y resultados paginados.
-- Categorías que inician una búsqueda en la API.
-- Detalle con portada, título, autor, año de publicación, cantidad de ediciones, ISBN y temas cuando esos datos están disponibles.
-- Añadir y quitar libros de favoritos desde las tarjetas y el detalle.
-- Favoritos guardados localmente con `shared_preferences`.
-- Mensajes de confirmación al cambiar favoritos, con opción para deshacer desde las tarjetas.
-- Estados de carga, error y resultados vacíos.
-- Interfaz adaptable, navegación inferior y temas claro y oscuro.
-- Placeholders para libros sin portada o con metadatos ausentes.
+Flutter Books Clean BLoC is a mobile application focused on book discovery and search. The project demonstrates how to structure a Flutter application using separation of concerns, repository-based data access, use cases, and reactive state management.
 
-Las búsquedas de las secciones de inicio son consultas editoriales al catálogo; la aplicación no afirma ofrecer recomendaciones personalizadas ni datos de tendencias en tiempo real.
+The application consumes the Open Library API and includes local persistence for favorite books.
 
-## API
+## 🏗️ Architecture
 
-La aplicación consulta la [Open Library Search API](https://openlibrary.org/search.json) para buscar libros y obtener metadatos. Las solicitudes incluyen paginación (`page` y `limit`).
-
-Las portadas se cargan desde Open Library Covers con el identificador de portada:
-
-```text
-https://covers.openlibrary.org/b/id/{COVER_ID}-L.jpg
-```
-
-Los campos del catálogo son opcionales. Cuando Open Library no proporciona un dato, la interfaz muestra un valor o placeholder alternativo.
-
-## Arquitectura
-
-El flujo principal es:
-
-```text
-Presentation → Domain → Data
-```
-
-- **Presentation:** aplicación, navegación, widgets y `LibraryCubit` con su estado de carga, resultados, favoritos y errores. No contiene llamadas HTTP.
-- **Domain:** entidad `Book`, contrato `BookRepository` y casos de uso para buscar libros y gestionar favoritos.
-- **Data:** `BookModel` adapta JSON de Open Library y favoritos locales a la entidad `Book`; incluye las fuentes remota y local y la implementación de `BookRepository`.
-
-`main.dart` crea las fuentes de datos, el repositorio y el `Cubit`, y los conecta con `BlocProvider`. El modelo de Data se convierte a la entidad de Domain en los data sources. No hay una carpeta `core/` ni clases de eventos BLoC separadas.
-
-## Estructura actual
+The project follows a Clean Architecture-inspired structure:
 
 ```text
 lib/
+├── core/
 ├── data/
 │   ├── datasources/
-│   │   ├── book_local_data_source.dart
-│   │   └── book_remote_data_source.dart
 │   ├── models/
-│   │   └── book_model.dart
 │   └── repositories/
-│       └── book_repository_impl.dart
 ├── domain/
 │   ├── entities/
-│   │   └── book.dart
 │   ├── repositories/
-│   │   └── book_repository.dart
-│   └── use_cases/
-│       ├── manage_favorites.dart
-│       └── search_books.dart
-├── presentation/
-│   ├── library_app.dart
-│   └── library_cubit.dart
-└── main.dart
-
-test/
-├── book_test.dart
-└── library_cubit_test.dart
+│   └── usecases/
+└── presentation/
+    ├── cubit/
+    ├── pages/
+    └── widgets/
 ```
 
-## Tecnologías
+The main application flow is:
 
-- Flutter 3.47.x, canal stable.
-- Dart compatible con la versión de Flutter utilizada.
-- `flutter_bloc` para el estado de presentación.
-- `http` para las solicitudes REST a Open Library.
-- `shared_preferences` para persistir favoritos localmente.
-- `flutter_test` para pruebas de la entidad y del `LibraryCubit`.
+```text
+Presentation
+     ↓
+Cubit / BLoC
+     ↓
+Use Case
+     ↓
+Repository
+     ↓
+Remote Data Source
+     ↓
+Open Library API
+```
 
-La inyección de dependencias es manual; no se utiliza un paquete de DI. La persistencia usa SharedPreferences; no se utiliza Hive.
+This separation keeps UI, business logic, domain rules, and external data sources independent from each other.
 
-## Requisitos
+## 🚀 Features
 
-- Flutter 3.47.x en el canal stable.
-- Dart incluido con la versión de Flutter correspondiente.
+- Search for books through the Open Library API
+- Browse book information
+- Pagination for API results
+- Favorite books
+- Local persistence for favorites
+- Reactive state management with Cubit/BLoC
+- Repository Pattern
+- Use Case layer
+- Responsive interface
+- Separation between presentation, domain, and data layers
+- Unit and application-level tests
 
-## Instalación y ejecución
+## 🧩 Technologies
 
-Clona el repositorio y entra en el directorio del proyecto:
+| Technology | Usage |
+|---|---|
+| Flutter | Application framework |
+| Dart | Programming language |
+| flutter_bloc | State management |
+| Cubit | Reactive application state |
+| Open Library API | Book data |
+| HTTP | REST API communication |
+| SharedPreferences | Local persistence |
+| Equatable | Value equality |
+| Clean Architecture | Application organization |
+| Repository Pattern | Data abstraction |
+
+## 🔎 Book Search
+
+The application communicates with the Open Library API to retrieve book information.
+
+The search flow is handled through the application layers instead of making API calls directly from the UI:
+
+```text
+User Search
+    ↓
+Presentation
+    ↓
+Cubit
+    ↓
+Use Case
+    ↓
+Repository
+    ↓
+Remote Data Source
+    ↓
+Open Library API
+```
+
+This structure makes the API integration easier to test and maintain.
+
+## ❤️ Favorites
+
+Favorite books are persisted locally using `SharedPreferences`, allowing selected books to remain available between application sessions.
+
+## 📄 Pagination
+
+Search results are handled through pagination to avoid loading an unnecessarily large number of books at once.
+
+This provides a more efficient experience when navigating through API results.
+
+## 🧪 Testing
+
+The project includes tests for application functionality and core components.
+
+The architecture also makes individual layers easier to test because dependencies are separated through repositories and use cases.
+
+## ⚙️ Installation
+
+### 1. Clone the repository
 
 ```bash
-git clone <URL_DEL_REPOSITORIO>
-cd <DIRECTORIO_DEL_PROYECTO>
+git clone https://github.com/MiguelArbelaez0/FLUTTER_BOOKS_CLEAN_BLOC.git
+cd FLUTTER_BOOKS_CLEAN_BLOC
+```
+
+### 2. Install dependencies
+
+```bash
 flutter pub get
+```
+
+### 3. Run the application
+
+```bash
 flutter run
 ```
 
-Para ejecutar en Chrome:
+Make sure Flutter and Dart are correctly installed and configured on your development environment.
 
-```bash
-flutter run -d chrome
-```
+## 📂 Project Structure
 
-## Pruebas y análisis
+The project is organized around the main responsibilities of the application:
 
-Ejecuta las pruebas automatizadas:
+- **Presentation:** screens, widgets and state management.
+- **Domain:** entities, repository contracts and use cases.
+- **Data:** API communication, models and repository implementations.
+- **Core:** shared functionality and application utilities.
 
-```bash
-flutter test
-```
+## 🎯 What This Project Demonstrates
 
-Ejecuta el análisis estático:
+This project demonstrates practical experience with:
 
-```bash
-flutter analyze
-```
+- Flutter application development
+- Dart
+- BLoC/Cubit
+- Clean Architecture principles
+- Repository Pattern
+- Use Case design
+- REST API integration
+- Local persistence
+- Pagination
+- State management
+- Testing
+- Separation of concerns
 
-Las pruebas actuales verifican el mapeo de campos presentes y ausentes en `Book`, la búsqueda paginada sin duplicados en el `LibraryCubit` y el cambio de favoritos.
+## 📌 Project Status
 
-## Diseño
+The project is a completed academic/personal development project created to practice production-oriented Flutter architecture and application development patterns.
 
-La interfaz organiza el catálogo en secciones y tarjetas, con navegación entre inicio, búsqueda, favoritos y ajustes. La cuadrícula adapta el número de columnas al ancho disponible; el tema claro y el oscuro usan esquemas de color distintos.
+## 👨‍💻 Author
 
-## Valor para portafolio
+**Miguel Arbeláez Vallejo**
 
-El proyecto demuestra integración de Flutter y `flutter_bloc`, consumo de una API REST, separación por capas, uso de Repository y Use Cases, persistencia local, manejo de estados, interfaz responsive y pruebas automatizadas.
+Software Developer | Flutter / Dart | Full-Stack Development
+
+- GitHub: https://github.com/MiguelArbelaez0
+- LinkedIn: https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/
