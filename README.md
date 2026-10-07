@@ -1,10 +1,10 @@
 # Flutter Books Clean BLoC
 
-A Flutter application for discovering, searching, and consulting books through the Open Library API, built with a clean, maintainable architecture using BLoC/Cubit.
+A Flutter mobile application for discovering, searching, and saving books through the Open Library API, built with a Clean Architecture-inspired structure and BLoC/Cubit state management.
 
 ## 📱 Overview
 
-Flutter Books Clean BLoC is a mobile application focused on book discovery and search. The project demonstrates how to structure a Flutter application using separation of concerns, repository-based data access, use cases, and reactive state management.
+Flutter Books Clean BLoC is a mobile application focused on book discovery and search. The project demonstrates separation of concerns across presentation, domain, and data layers, with repository-based data access, use cases, and reactive state management.
 
 The application consumes the Open Library API and includes local persistence for favorite books.
 
@@ -72,8 +72,7 @@ This separation keeps UI, business logic, domain rules, and external data source
 | Open Library API | Book data |
 | HTTP | REST API communication |
 | SharedPreferences | Local persistence |
-| Equatable | Value equality |
-| Clean Architecture | Application organization |
+| Clean Architecture principles | Application organization |
 | Repository Pattern | Data abstraction |
 
 ## 🔎 Book Search
@@ -167,13 +166,15 @@ This project demonstrates practical experience with:
 
 ## 📌 Project Status
 
-The project is a completed academic/personal development project created to practice production-oriented Flutter architecture and application development patterns.
+**Completed portfolio project.**
+
+The project was developed to demonstrate production-oriented Flutter architecture, REST API integration, local persistence, pagination, and testable state management.
 
 ## 👨‍💻 Author
 
 **Miguel Arbeláez Vallejo**
 
-Software Developer | Flutter / Dart | Full-Stack Development
+Software Developer | Flutter & Dart | Full-Stack | Backend | AI/Data
 
 - GitHub: https://github.com/MiguelArbelaez0
 - LinkedIn: https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/
