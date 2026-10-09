@@ -168,7 +168,7 @@ Desarrollado para demostrar arquitectura mantenible en Flutter, integración con
 
 **Miguel Arbeláez Vallejo**
 
-Desarrollador de Software | Flutter y Dart | Desarrollo integral | Servidor | IA y Datos
+Flutter & Dart · Full-Stack · Backend · AI/Data
 
 - GitHub: https://github.com/MiguelArbelaez0
 - LinkedIn: https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/
