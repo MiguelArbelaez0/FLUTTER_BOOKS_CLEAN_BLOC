@@ -1,4 +1,4 @@
-# Flutter Books Clean BLoC — Libris
+﻿# Flutter Books Clean BLoC — Libris
 
 Aplicación Flutter para descubrir libros en Open Library y guardar favoritos en el dispositivo.
 
@@ -62,6 +62,18 @@ flutter build web
 
 El APK debug, si la compilación termina correctamente, se genera en `build/app/outputs/flutter-apk/app-debug.apk`.
 
+### JDK aislado para Android en Windows
+
+Si Android Studio aporta un Java incompatible, el script `scripts/flutter-local.ps1` permite usar un JDK 17 portátil sin cambiar la configuración global. Descarga el ZIP para Windows x64 desde [Eclipse Temurin](https://adoptium.net/temurin/releases/?version=17), verifica su SHA-256 y extráelo bajo `.tooling/jdk17/`, o indica su ruta explícitamente:
+
+```powershell
+./scripts/flutter-local.ps1 -JdkPath 'C:\ruta\jdk-17' -FlutterArguments @('doctor', '-v')
+./scripts/flutter-local.ps1 -JdkPath 'C:\ruta\jdk-17' -FlutterArguments @('build', 'apk', '--debug')
+```
+
+Con el JDK extraído en `.tooling/jdk17/` se puede omitir `-JdkPath`. El script aísla los ajustes Flutter en `.tooling/flutter-config`, establece Java solo para el proceso y restaura su entorno al terminar. `.tooling/` contiene herramientas y registros locales excluidos de Git. No incluye ni descarga automáticamente un JDK.
+
+
 ## API, almacenamiento y seguridad
 
 Se consulta `https://openlibrary.org/search.json` mediante `http`, con parámetros codificados, paginación de 20 libros y timeout de 15 segundos. Las portadas usan HTTPS en `covers.openlibrary.org`. Los errores HTTP y las respuestas con formato inesperado muestran un estado de error; no hay reintentos automáticos ilimitados.
@@ -73,6 +85,8 @@ Android declara INTERNET y bloquea tráfico HTTP sin cifrar. macOS habilita cone
 ## Pruebas y estado de validación
 
 Las pruebas unitarias y de widgets cubren modelos, respuestas HTTP inválidas, timeout, persistencia, duplicados, concurrencia, respuestas obsoletas, cierre del Cubit, errores y reintentos, búsqueda vacía, cancelación del debounce y navegación a detalles.
+
+Validación Android con JDK 17 local: análisis sin observaciones, 23 pruebas aprobadas y APK debug generado (153231524 bytes). La compilación conserva avisos de futuro fin de soporte de las versiones actuales de Gradle, AGP y Kotlin. No se ha probado en dispositivos físicos.
 
 La auditoría y los resultados ejecutados se detallan en [AUDIT.md](AUDIT.md). Las pruebas usan repositorios y clientes HTTP controlados; no certifican disponibilidad real de Open Library ni funcionamiento en dispositivos físicos.
 

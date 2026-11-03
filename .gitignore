@@ -50,3 +50,6 @@ app.*.map.json
 !.env.example
 *.pem
 *.p12
+
+# Project-local Android toolchain and validation logs
+/.tooling/
