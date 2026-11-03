@@ -23,8 +23,8 @@ class BookModel {
   final List<String> subjects;
 
   factory BookModel.fromJson(Map<String, dynamic> json) => BookModel(
-    id: json['id'] as String? ?? json['key'] as String? ?? '',
-    title: json['title'] as String? ?? 'Sin título',
+    id: _text(json['id'] ?? json['key']),
+    title: _text(json['title'], fallback: 'Sin título'),
     authors: _strings(json['authors'] ?? json['author_name']),
     coverId: _integer(json['coverId'] ?? json['cover_i']),
     firstPublishYear: _integer(
@@ -68,10 +68,17 @@ class BookModel {
     'subjects': subjects,
   };
 
+  static String _text(Object? value, {String fallback = ''}) =>
+      value is String && value.trim().isNotEmpty ? value.trim() : fallback;
+
   static int? _integer(Object? value) =>
-      value is num ? value.toInt() : int.tryParse('$value');
+      value is num && value.isFinite ? value.toInt() : int.tryParse('$value');
 
   static List<String> _strings(Object? value) => value is List
-      ? value.whereType<String>().where((item) => item.isNotEmpty).toList()
+      ? value
+            .whereType<String>()
+            .map((item) => item.trim())
+            .where((item) => item.isNotEmpty)
+            .toList()
       : const [];
 }

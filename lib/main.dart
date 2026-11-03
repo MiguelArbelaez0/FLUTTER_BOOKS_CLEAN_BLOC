@@ -13,14 +13,20 @@ import 'presentation/library_cubit.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final preferences = await SharedPreferences.getInstance();
+  final client = http.Client();
   final BookRepository repository = BookRepositoryImpl(
-    remote: BookRemoteDataSource(client: http.Client()),
+    remote: BookRemoteDataSource(client: client),
     local: BookLocalDataSource(preferences),
   );
   runApp(
-    BlocProvider(
-      create: (_) => LibraryCubit(repository)..loadHome(),
-      child: const BookishApp(),
+    RepositoryProvider<http.Client>(
+      lazy: false,
+      create: (_) => client,
+      dispose: (client) => client.close(),
+      child: BlocProvider(
+        create: (_) => LibraryCubit(repository)..loadHome(),
+        child: const BookishApp(),
+      ),
     ),
   );
 }

@@ -104,6 +104,7 @@ class _LibraryShellState extends State<LibraryShell> {
   }
 
   void _pickCategory(String label, String query) {
+    _debounce?.cancel();
     setState(() => _index = 1);
     _searchController.text = label;
     context.read<LibraryCubit>().search(query);
@@ -111,10 +112,23 @@ class _LibraryShellState extends State<LibraryShell> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: SafeArea(
-      child: IndexedStack(
-        index: _index,
-        children: [_home(), _searchPage(), _favoritesPage(), _settingsPage()],
+    body: BlocListener<LibraryCubit, LibraryState>(
+      listenWhen: (previous, current) =>
+          current.favoriteError != null &&
+          previous.favoriteError != current.favoriteError,
+      listener: (context, state) => ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(state.favoriteError!))),
+      child: SafeArea(
+        child: IndexedStack(
+          index: _index,
+          children: [
+            HeroMode(enabled: _index == 0, child: _home()),
+            HeroMode(enabled: _index == 1, child: _searchPage()),
+            HeroMode(enabled: _index == 2, child: _favoritesPage()),
+            _settingsPage(),
+          ],
+        ),
       ),
     ),
     bottomNavigationBar: NavigationBar(
@@ -143,6 +157,7 @@ class _LibraryShellState extends State<LibraryShell> {
       return RefreshIndicator(
         onRefresh: context.read<LibraryCubit>().loadHome,
         child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.fromLTRB(
             width > 700 ? 48 : 22,
             22,
@@ -247,7 +262,12 @@ class _LibraryShellState extends State<LibraryShell> {
                 padding: EdgeInsets.all(20),
                 child: Center(child: CircularProgressIndicator()),
               ),
-            if (state.error != null)
+            if (state.hasMore && !state.loading && !state.loadingMore)
+              TextButton(
+                onPressed: () => context.read<LibraryCubit>().loadMore(),
+                child: const Text('Cargar más libros'),
+              ),
+            if (state.error != null && state.sections.isNotEmpty)
               _error(
                 state.error!,
                 () => context.read<LibraryCubit>().loadMore(),
@@ -278,6 +298,7 @@ class _LibraryShellState extends State<LibraryShell> {
           : IconButton(
               icon: const Icon(Icons.close),
               onPressed: () {
+                _debounce?.cancel();
                 _searchController.clear();
                 context.read<LibraryCubit>().search('');
                 setState(() {});
@@ -339,7 +360,9 @@ class _LibraryShellState extends State<LibraryShell> {
                 if (state.error != null)
                   _error(
                     state.error!,
-                    () => context.read<LibraryCubit>().search(state.query),
+                    () => state.results.isEmpty
+                        ? context.read<LibraryCubit>().search(state.query)
+                        : context.read<LibraryCubit>().loadMore(),
                   ),
                 if (!state.loading &&
                     state.query.isNotEmpty &&
@@ -357,7 +380,13 @@ class _LibraryShellState extends State<LibraryShell> {
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
-          sliver: SliverToBoxAdapter(child: _bookGrid(state.results)),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _BookTile(book: state.results[index]),
+              childCount: state.results.length,
+            ),
+            gridDelegate: _gridDelegate(),
+          ),
         ),
         if (state.loadingMore)
           const SliverToBoxAdapter(
@@ -468,6 +497,16 @@ class _LibraryShellState extends State<LibraryShell> {
 
   Widget _bookGrid(List<Book> books) {
     if (books.isEmpty) return const SizedBox.shrink();
+    return GridView.builder(
+      itemCount: books.length,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: _gridDelegate(),
+      itemBuilder: (context, index) => _BookTile(book: books[index]),
+    );
+  }
+
+  SliverGridDelegateWithFixedCrossAxisCount _gridDelegate() {
     final width = MediaQuery.sizeOf(context).width;
     final columns = width > 1100
         ? 6
@@ -476,17 +515,11 @@ class _LibraryShellState extends State<LibraryShell> {
         : width > 520
         ? 3
         : 2;
-    return GridView.builder(
-      itemCount: books.length,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: columns,
-        childAspectRatio: .51,
-        crossAxisSpacing: 14,
-        mainAxisSpacing: 18,
-      ),
-      itemBuilder: (context, index) => _BookTile(book: books[index]),
+    return SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: columns,
+      childAspectRatio: .51,
+      crossAxisSpacing: 14,
+      mainAxisSpacing: 18,
     );
   }
 
@@ -535,7 +568,9 @@ class _BookTile extends StatelessWidget {
       return InkWell(
         borderRadius: BorderRadius.circular(17),
         onTap: () => Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => BookDetailsPage(book: book)),
+          MaterialPageRoute<void>(
+            builder: (_) => BookDetailsPage(book: book, heroTag: this),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -545,7 +580,7 @@ class _BookTile extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Hero(
-                    tag: 'cover-${book.id}',
+                    tag: this,
                     child: _Cover(book: book),
                   ),
                   Positioned(
@@ -562,10 +597,10 @@ class _BookTile extends StatelessWidget {
                             : 'Añadir a favoritos',
                         visualDensity: VisualDensity.compact,
                         onPressed: () async {
-                          await context.read<LibraryCubit>().toggleFavorite(
-                            book,
-                          );
-                          if (!context.mounted) return;
+                          final saved = await context
+                              .read<LibraryCubit>()
+                              .toggleFavorite(book);
+                          if (!context.mounted || !saved) return;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -663,7 +698,8 @@ class _Cover extends StatelessWidget {
 }
 
 class BookDetailsPage extends StatelessWidget {
-  const BookDetailsPage({required this.book, super.key});
+  const BookDetailsPage({required this.book, this.heroTag, super.key});
+  final Object? heroTag;
   final Book book;
   @override
   Widget build(BuildContext context) {
@@ -696,7 +732,7 @@ class BookDetailsPage extends StatelessWidget {
               height: 330,
               width: 220,
               child: Hero(
-                tag: 'cover-${book.id}',
+                tag: heroTag ?? book,
                 child: _Cover(book: book),
               ),
             ),

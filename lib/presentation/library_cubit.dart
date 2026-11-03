@@ -13,9 +13,10 @@ class LibraryState {
     this.loading = false,
     this.loadingMore = false,
     this.error,
+    this.favoriteError,
     this.query = '',
     this.page = 1,
-    this.hasMore = true,
+    this.hasMore = false,
   });
   final Map<String, List<Book>> sections;
   final List<Book> results;
@@ -23,6 +24,7 @@ class LibraryState {
   final bool loading;
   final bool loadingMore;
   final String? error;
+  final String? favoriteError;
   final String query;
   final int page;
   final bool hasMore;
@@ -35,6 +37,8 @@ class LibraryState {
     bool? loadingMore,
     String? error,
     bool clearError = false,
+    String? favoriteError,
+    bool clearFavoriteError = false,
     String? query,
     int? page,
     bool? hasMore,
@@ -45,6 +49,9 @@ class LibraryState {
     loading: loading ?? this.loading,
     loadingMore: loadingMore ?? this.loadingMore,
     error: clearError ? null : error ?? this.error,
+    favoriteError: clearFavoriteError
+        ? null
+        : favoriteError ?? this.favoriteError,
     query: query ?? this.query,
     page: page ?? this.page,
     hasMore: hasMore ?? this.hasMore,
@@ -64,7 +71,21 @@ class LibraryCubit extends Cubit<LibraryState> {
   int _requestId = 0;
 
   Future<void> loadHome() async {
-    emit(state.copyWith(loading: true, clearError: true));
+    if (isClosed) return;
+    final requestId = ++_requestId;
+    await loadFavorites();
+    if (isClosed || requestId != _requestId) return;
+    emit(
+      state.copyWith(
+        loading: true,
+        loadingMore: false,
+        query: '',
+        results: const [],
+        page: 1,
+        hasMore: false,
+        clearError: true,
+      ),
+    );
     try {
       final queries = await Future.wait([
         _searchBooks('bestselling books', limit: 12),
@@ -72,6 +93,7 @@ class LibraryCubit extends Cubit<LibraryState> {
         _searchBooks('award winning novels', limit: 12),
         _searchBooks('fiction', limit: pageSize),
       ]);
+      if (isClosed || requestId != _requestId) return;
       emit(
         state.copyWith(
           sections: {
@@ -86,18 +108,23 @@ class LibraryCubit extends Cubit<LibraryState> {
           clearError: true,
         ),
       );
-      await loadFavorites();
     } catch (error) {
+      if (isClosed || requestId != _requestId) return;
       emit(state.copyWith(loading: false, error: _message(error)));
     }
   }
 
   Future<void> search(String query, {bool replace = true}) async {
+    if (isClosed) return;
+    query = query.trim();
     final requestId = ++_requestId;
     if (query.trim().isEmpty) {
       emit(
         state.copyWith(
           query: query,
+          page: 1,
+          hasMore: false,
+          loadingMore: false,
           results: const [],
           loading: false,
           clearError: true,
@@ -108,6 +135,9 @@ class LibraryCubit extends Cubit<LibraryState> {
     emit(
       state.copyWith(
         query: query,
+        results: replace ? const [] : state.results,
+        page: replace ? 1 : state.page,
+        hasMore: replace ? true : state.hasMore,
         loading: replace,
         loadingMore: !replace,
         clearError: true,
@@ -116,7 +146,7 @@ class LibraryCubit extends Cubit<LibraryState> {
     try {
       final page = replace ? 1 : state.page + 1;
       final books = await _searchBooks(query, page: page, limit: pageSize);
-      if (requestId != _requestId) return;
+      if (isClosed || requestId != _requestId) return;
       final previous = replace ? <Book>[] : state.results;
       final seen = previous.map((book) => book.id).toSet();
       final fresh = books
@@ -133,28 +163,57 @@ class LibraryCubit extends Cubit<LibraryState> {
         ),
       );
     } catch (error) {
-      if (requestId != _requestId) return;
+      if (isClosed || requestId != _requestId) return;
       emit(
         state.copyWith(
           loading: false,
           loadingMore: false,
           error: _message(error),
+          hasMore: replace ? false : state.hasMore,
         ),
       );
     }
   }
 
   Future<void> loadMore() async {
-    if (state.loading || state.loadingMore || !state.hasMore) return;
+    if (isClosed || state.loading || state.loadingMore || !state.hasMore) {
+      return;
+    }
     await search(state.query.isEmpty ? 'fiction' : state.query, replace: false);
   }
 
-  Future<void> loadFavorites() async =>
-      emit(state.copyWith(favorites: await _getFavorites()));
+  Future<void> loadFavorites() async {
+    try {
+      final favorites = await _getFavorites();
+      if (!isClosed) {
+        emit(state.copyWith(favorites: favorites, clearFavoriteError: true));
+      }
+    } catch (_) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(favoriteError: 'No se pudieron leer los favoritos.'),
+        );
+      }
+    }
+  }
 
-  Future<void> toggleFavorite(Book book) async {
-    await _toggleFavorite(book);
-    await loadFavorites();
+  Future<bool> toggleFavorite(Book book) async {
+    if (isClosed) return false;
+    try {
+      await _toggleFavorite(book);
+      await loadFavorites();
+      return state.favoriteError == null;
+    } catch (_) {
+      if (!isClosed) {
+        emit(
+          state.copyWith(
+            favoriteError:
+                'No se pudo guardar el cambio en favoritos. Inténtalo de nuevo.',
+          ),
+        );
+      }
+      return false;
+    }
   }
 
   bool isFavorite(String id) => state.favorites.any((book) => book.id == id);
