@@ -1,11 +1,10 @@
 # Flutter Books Clean BLoC
 
-> **Resumen para evaluación técnica**  
+> **En resumen**  
 > **Stack:** Flutter · Dart · Cubit · Open Library API · SharedPreferences  
-> **Evidencia:** Demuestra integración de API REST, favoritos locales y separación de datos, dominio y presentación.  
-> **Código para revisar:** `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.  
-> **Verificación:** revisión estática de repositorio; no equivale a ejecución de tests ni certificación de producción.
-
+> **Funcionalidad:** integración de API REST, favoritos locales y separación de datos, dominio y presentación.  
+> **Código principal:** `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.  
+> **Pruebas:** ejecución no verificada.
 
 Aplicación móvil desarrollada con Flutter y Dart para descubrir, buscar y guardar libros mediante la API de Open Library, utilizando una estructura basada en Clean Architecture y gestión de estado con BLoC/Cubit.
 
@@ -181,8 +180,7 @@ Flutter & Dart · Full-Stack · Backend · AI/Data
 
 ---
 
-## Estado técnico y limitaciones
+## Requisitos y limitaciones
 
-`pubspec.yaml` declara `flutter_bloc`, `http` y `shared_preferences`. El código incluye fuentes de datos, repositorios, casos de uso y pruebas de libros/Cubit. La existencia de pruebas no implica que se hayan ejecutado satisfactoriamente en esta revisión.
+`pubspec.yaml` declara `flutter_bloc`, `http` y `shared_preferences`. El código incluye fuentes de datos, repositorios, casos de uso y pruebas de libros/Cubit. Los resultados de ejecución de estas pruebas no están documentados.
 
-**Estado de la revisión:** contraste estático entre documentación, estructura y archivos de configuración/código seleccionados. No se ejecutaron compilaciones, pruebas automatizadas, despliegues ni auditorías dinámicas de seguridad. La documentación describe el alcance observado, sin certificar preparación para producción.
