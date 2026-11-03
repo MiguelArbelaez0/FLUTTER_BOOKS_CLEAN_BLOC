@@ -1,186 +1,117 @@
-# Flutter Books Clean BLoC
+# Flutter Books Clean BLoC — Libris
 
-> **En resumen**  
-> **Stack:** Flutter · Dart · Cubit · Open Library API · SharedPreferences  
-> **Funcionalidad:** integración de API REST, favoritos locales y separación de datos, dominio y presentación.  
-> **Código principal:** `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.  
-> **Pruebas:** ejecución no verificada.
+> **Stack:** Flutter · Dart · Cubit · Open Library API · SharedPreferences
+>
+> **Funcionalidad:** búsqueda y descubrimiento de libros, favoritos locales y separación de datos, dominio y presentación.
+>
+> **Código principal:** `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.
+>
+> **Pruebas:** 23 pruebas aprobadas; análisis estático sin observaciones.
 
 Aplicación móvil desarrollada con Flutter y Dart para descubrir, buscar y guardar libros mediante la API de Open Library, utilizando una estructura basada en Clean Architecture y gestión de estado con BLoC/Cubit.
 
-## 📱 Descripción general
+## Funcionalidades
 
-Flutter Books Clean BLoC es una aplicación móvil enfocada en el descubrimiento y búsqueda de libros.
+- Inicio con secciones de descubrimiento y catálogo paginado.
+- Búsqueda por título, autor o tema, con espera de 450 ms al escribir.
+- Categorías, resultados vacíos, indicadores de carga y reintentos.
+- Detalle con autores, portada, primera publicación, ediciones, ISBN y temas disponibles.
+- Favoritos con SharedPreferences y opción de deshacer desde el catálogo.
+- Tema claro y oscuro durante la sesión.
+- Portadas de respaldo cuando faltan imágenes o no pueden descargarse.
 
-El proyecto separa las responsabilidades entre presentación, dominio y datos, utilizando repositorios, casos de uso y gestión reactiva del estado.
+Los nombres de las secciones de inicio representan consultas de descubrimiento; no son rankings certificados ni recomendaciones personalizadas. No incluye cuentas, sincronización, lectura de libros ni descarga de contenido.
 
-La aplicación consume la API de Open Library e incluye persistencia local para los libros favoritos.
-
-## 🏗️ Arquitectura
+## Arquitectura
 
 ```text
 lib/
-├── data/
-│   ├── datasources/
-│   ├── models/
-│   └── repositories/
-├── domain/
-│   ├── entities/
-│   ├── repositories/
-│   └── use_cases/
-├── presentation/
-│   ├── library_app.dart
-│   └── library_cubit.dart
-└── main.dart
+  main.dart                         # Composición e inyección de dependencias
+  domain/
+    entities/book.dart
+    repositories/book_repository.dart
+    use_cases/                      # SearchBooks, GetFavorites, ToggleFavorite
+  data/
+    models/book_model.dart
+    datasources/                    # HTTP y almacenamiento local
+    repositories/book_repository_impl.dart
+  presentation/
+    library_cubit.dart              # LibraryState y LibraryCubit
+    library_app.dart                # Aplicación, navegación y widgets
 ```
 
-Flujo principal:
+La presentación depende del dominio; la implementación de los repositorios y los plugins permanecen en data. `main.dart` conecta las capas. El dominio no importa Flutter ni plugins. Se usa Cubit de `flutter_bloc`, sin Equatable ni un contenedor adicional de inyección.
 
-```text
-Presentación
-     ↓
-Cubit / BLoC
-     ↓
-Caso de uso
-     ↓
-Repositorio
-     ↓
-Fuente de datos remota
-     ↓
-API de Open Library
-```
+El Cubit descarta respuestas obsoletas y evita emisiones después del cierre. Las operaciones de escritura de favoritos se serializan en el repositorio. El propietario del cliente HTTP lo cierra al desmontar la aplicación. La lista de búsqueda usa un SliverGrid con construcción diferida.
 
-Esta separación mantiene independientes la interfaz, la lógica de negocio, las reglas de dominio y las fuentes externas de datos.
+## Requisitos y ejecución
 
-## 🚀 Funcionalidades
-
-- Buscar libros mediante la API de Open Library.
-- Consultar información de libros.
-- Paginación de resultados.
-- Marcar libros como favoritos.
-- Persistencia local de favoritos.
-- Gestión reactiva del estado con Cubit/BLoC.
-- Repository Pattern.
-- Capa de casos de uso.
-- Interfaz adaptable.
-- Separación entre presentación, dominio y datos.
-- Pruebas unitarias y de aplicación.
-
-## 🧩 Tecnologías
-
-| Tecnología | Uso |
-|---|---|
-| Flutter | Desarrollo de la aplicación |
-| Dart | Lenguaje de programación |
-| flutter_bloc | Gestión de estado |
-| Cubit | Gestión reactiva del estado |
-| Open Library API | Datos de libros |
-| HTTP | Comunicación con la API REST |
-| SharedPreferences | Persistencia local |
-| Clean Architecture | Organización de la aplicación |
-| Repository Pattern | Abstracción del acceso a datos |
-
-## 🔎 Búsqueda de libros
-
-La aplicación se comunica con Open Library para obtener información de libros.
-
-La búsqueda atraviesa las capas de la aplicación en lugar de realizar llamadas directamente desde la interfaz:
-
-```text
-Búsqueda del usuario
-    ↓
-Presentación
-    ↓
-Cubit
-    ↓
-Caso de uso
-    ↓
-Repositorio
-    ↓
-Fuente de datos remota
-    ↓
-API de Open Library
-```
-
-Esto facilita las pruebas y el mantenimiento de la integración.
-
-## ❤️ Favoritos
-
-Los libros favoritos se almacenan localmente mediante `SharedPreferences`, permitiendo conservarlos entre sesiones.
-
-## 📄 Paginación
-
-Los resultados se manejan mediante paginación para evitar cargar una cantidad innecesaria de libros en una sola consulta.
-
-## 🧪 Pruebas
-
-El proyecto incluye pruebas para funcionalidades y componentes principales.
-
-La separación mediante repositorios y casos de uso facilita probar las capas de manera independiente.
-
-## ⚙️ Instalación
-
-### 1. Clonar el repositorio
+- Flutter con Dart compatible con `sdk: ^3.10.7`.
+- Android SDK y JDK compatible con Gradle 8.14 (por ejemplo JDK 17).
+- Para iOS/macOS se necesita macOS con Xcode y herramientas de la plataforma.
 
 ```bash
 git clone https://github.com/MiguelArbelaez0/FLUTTER_BOOKS_CLEAN_BLOC.git
 cd FLUTTER_BOOKS_CLEAN_BLOC
-```
-
-### 2. Instalar dependencias
-
-```bash
 flutter pub get
+flutter devices
+flutter run -d <device-id>
 ```
 
-### 3. Ejecutar
+Para ejecutar en navegador: `flutter run -d chrome`.
 
 ```bash
-flutter run
+dart format .
+flutter analyze
+flutter test
+flutter build apk --debug
+flutter build web
 ```
 
-Asegúrate de tener Flutter y Dart instalados y configurados correctamente.
+El APK debug, si la compilación termina correctamente, se genera en `build/app/outputs/flutter-apk/app-debug.apk`.
 
-## 📂 Estructura de responsabilidades
+### JDK aislado para Android en Windows
 
-- **Presentación:** pantallas, widgets y gestión de estado.
-- **Dominio:** entidades, contratos de repositorio y casos de uso.
-- **Datos:** comunicación con la API, modelos e implementaciones de repositorios.
-- **Core:** funcionalidades compartidas y utilidades.
+Si Android Studio aporta un Java incompatible, el script `scripts/flutter-local.ps1` permite usar un JDK 17 portátil sin cambiar la configuración global. Descarga el ZIP para Windows x64 desde [Eclipse Temurin](https://adoptium.net/temurin/releases/?version=17), verifica su SHA-256 y extráelo bajo `.tooling/jdk17/`, o indica su ruta explícitamente:
 
-## 🎯 Qué demuestra este proyecto
+```powershell
+./scripts/flutter-local.ps1 -JdkPath 'C:\ruta\jdk-17' -FlutterArguments @('doctor', '-v')
+./scripts/flutter-local.ps1 -JdkPath 'C:\ruta\jdk-17' -FlutterArguments @('build', 'apk', '--debug')
+```
 
-- Desarrollo de aplicaciones con Flutter.
-- Dart.
-- BLoC/Cubit.
-- Principios de Clean Architecture.
-- Repository Pattern.
-- Diseño mediante casos de uso.
-- Integración con APIs REST.
-- Persistencia local.
-- Paginación.
-- Gestión de estado.
-- Pruebas.
-- Separación de responsabilidades.
+Con el JDK extraído en `.tooling/jdk17/` se puede omitir `-JdkPath`. El script aísla los ajustes Flutter en `.tooling/flutter-config`, establece Java solo para el proceso y restaura su entorno al terminar. `.tooling/` contiene herramientas y registros locales excluidos de Git. No incluye ni descarga automáticamente un JDK.
 
-## 📌 Estado del proyecto
+## API, almacenamiento y seguridad
 
-**Proyecto de portafolio terminado.**
+Se consulta `https://openlibrary.org/search.json` mediante `http`, con parámetros codificados, paginación de 20 libros y timeout de 15 segundos. Las portadas usan HTTPS en `covers.openlibrary.org`. Los errores HTTP y las respuestas con formato inesperado muestran un estado de error; no hay reintentos automáticos ilimitados.
 
-Desarrollado para demostrar arquitectura mantenible en Flutter, integración con APIs REST, persistencia local, paginación y gestión de estado orientada a pruebas.
+Los favoritos usan la clave existente `bookish_favorites_v1`. Se filtran entradas inválidas y duplicadas al leer, sin borrar automáticamente el contenido almacenado. Se informa al usuario si falla una escritura. SharedPreferences es almacenamiento local sin cifrado y no garantiza durabilidad para datos críticos; no se guardan credenciales. Véase la [documentación del plugin](https://pub.dev/packages/shared_preferences).
 
-## 👨‍💻 Autor
+Android declara INTERNET y bloquea tráfico HTTP sin cifrar. macOS habilita conexiones salientes en ambos archivos de entitlements, conforme a la [configuración de red de Flutter](https://docs.flutter.dev/data-and-backend/networking). No se requieren claves de API ni permisos de cámara, ubicación o almacenamiento externo.
+
+## Pruebas y estado de validación
+
+Las pruebas unitarias y de widgets cubren modelos, respuestas HTTP inválidas, timeout, persistencia, duplicados, concurrencia, respuestas obsoletas, cierre del Cubit, errores y reintentos, búsqueda vacía, cancelación del debounce y navegación a detalles.
+
+Validación Android con JDK 17 local: análisis sin observaciones, 23 pruebas aprobadas y APK debug generado (153231524 bytes). La compilación conserva avisos de futuro fin de soporte de las versiones actuales de Gradle, AGP y Kotlin. No se ha probado en dispositivos físicos.
+
+La auditoría y los resultados ejecutados se detallan en [AUDIT.md](AUDIT.md). Las pruebas usan repositorios y clientes HTTP controlados; no certifican disponibilidad real de Open Library ni funcionamiento en dispositivos físicos.
+
+## Límites conocidos
+
+- Favoritos disponibles sin conexión; búsqueda y portadas requieren red.
+- Inicio y búsqueda comparten el catálogo de resultados del Cubit.
+- El fin de paginación se estima por tamaño de página y registros nuevos; no se expone el total del servidor.
+- La carga de inicio agrupa cuatro consultas: si falla una, se muestra error y se permite reintentar.
+- El tema no se persiste entre sesiones.
+- Los identificadores de aplicación conservan los valores originales `com.example` para evitar cambios de identidad y pérdida de acceso a datos existentes.
+- La configuración Android release heredada usa firma debug. Debe configurarse una firma privada antes de distribuir; no está preparado para publicación en tiendas.
+
+## Autor
 
 **Miguel Arbeláez Vallejo**
 
 Flutter & Dart · Full-Stack · Backend · AI/Data
 
-- GitHub: https://github.com/MiguelArbelaez0
-- LinkedIn: https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/
-
----
-
-## Requisitos y limitaciones
-
-`pubspec.yaml` declara `flutter_bloc`, `http` y `shared_preferences`. El código incluye fuentes de datos, repositorios, casos de uso y pruebas de libros/Cubit. Los resultados de ejecución de estas pruebas no están documentados.
-
+- [GitHub](https://github.com/MiguelArbelaez0)
+- [LinkedIn](https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/)

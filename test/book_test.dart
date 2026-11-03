@@ -22,6 +22,20 @@ void main() {
       expect(book.subjects, contains('Science fiction'));
     });
 
+    test('handles malformed field types and non-finite numbers', () {
+      final book = BookModel.fromJson({
+        'key': 123,
+        'title': [],
+        'author_name': [null, '  ', ' Author '],
+        'cover_i': double.infinity,
+        'first_publish_year': {},
+      }).toEntity();
+      expect(book.id, isEmpty);
+      expect(book.title, 'Sin título');
+      expect(book.authorLabel, 'Author');
+      expect(book.coverUrl, isNull);
+    });
+
     test('uses safe defaults when API fields are missing', () {
       final model = BookModel.fromJson({'key': '/works/OL0W'});
       final book = model.toEntity();
