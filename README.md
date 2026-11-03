@@ -6,7 +6,7 @@
 >
 > **Código principal:** `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.
 >
-> **Pruebas:** 23 pruebas aprobadas; análisis estático sin observaciones.
+> **Calidad:** pruebas unitarias y de widgets, análisis estático y compilaciones de desarrollo verificadas.
 
 Aplicación móvil desarrollada con Flutter y Dart para descubrir, buscar y guardar libros mediante la API de Open Library, utilizando una estructura basada en Clean Architecture y gestión de estado con BLoC/Cubit.
 
@@ -93,9 +93,9 @@ Android declara INTERNET y bloquea tráfico HTTP sin cifrar. macOS habilita cone
 
 Las pruebas unitarias y de widgets cubren modelos, respuestas HTTP inválidas, timeout, persistencia, duplicados, concurrencia, respuestas obsoletas, cierre del Cubit, errores y reintentos, búsqueda vacía, cancelación del debounce y navegación a detalles.
 
-Validación Android con JDK 17 local: análisis sin observaciones, 23 pruebas aprobadas y APK debug generado (153231524 bytes). La compilación conserva avisos de futuro fin de soporte de las versiones actuales de Gradle, AGP y Kotlin. No se ha probado en dispositivos físicos.
+Se han ejecutado el análisis estático sin observaciones, 23 pruebas automatizadas satisfactorias y compilaciones de desarrollo para Android y web. La compilación Android requiere un JDK compatible y presenta advertencias de compatibilidad futura de Gradle, AGP y Kotlin. No se ha probado en dispositivos físicos.
 
-La auditoría y los resultados ejecutados se detallan en [AUDIT.md](AUDIT.md). Las pruebas usan repositorios y clientes HTTP controlados; no certifican disponibilidad real de Open Library ni funcionamiento en dispositivos físicos.
+Las pruebas usan repositorios y clientes HTTP controlados; no certifican disponibilidad real de Open Library ni funcionamiento en dispositivos físicos.
 
 ## Límites conocidos
 
