@@ -35,7 +35,7 @@ No se detectaron secretos en la inspección por patrones de los archivos actuale
 
 Pendiente para distribución: firma release privada (la plantilla conserva debug), identificadores definitivos, iconos propios y validación en dispositivos. SharedPreferences no cifra ni garantiza durabilidad de datos críticos. Las consultas de búsqueda se envían al servicio externo. No hay autenticación ni secretos que migrar a almacenamiento seguro.
 
-## Validación del entorno
+## Validación inicial del entorno (antes del ajuste de JDK)
 
 Windows; Flutter 3.47.5 estable; Dart 3.13.4. La ruta del SDK conserva un nombre anterior, pero las versiones son las reportadas por flutter --version.
 
@@ -109,3 +109,15 @@ Esta ejecución resuelve el bloqueo de Java descrito en la auditoría inicial. F
 El análisis y las pruebas no introdujeron advertencias. La compilación Android, al superar el fallo inicial de Java, mostró tres avisos de futuro fin de soporte de Flutter para las versiones heredadas de Gradle 8.14, AGP 8.11.1 y Kotlin 2.2.20. Flutter recomienda al menos Gradle 9.1.0, AGP 9.0.1 y Kotlin 2.3.20, respectivamente. No se ocultaron avisos ni se utilizó `--android-skip-build-dependency-validation`. Migrar esta cadena requiere una tarea separada y validación de sus cambios.
 
 `flutter doctor` sigue sin poder comprobar las licencias por falta de cmdline-tools, aunque el SDK instalado permitió este build. No se instalaron herramientas compartidas ni se aceptaron licencias automáticamente. La firma de distribución privada continúa pendiente. No se instaló ni se ejecutó el APK en emulador o dispositivo físico; las comprobaciones de ZIP y firma no certifican funcionamiento en dispositivos.
+
+## Verificación de cierre
+
+- Repositorio y rama confirmados: FLUTTER_BOOKS_CLEAN_BLOC, `audit/flutter-books`; commits `b7ecd93`, `1597f7c` y `f4c2f60` conservados.
+- `flutter analyze --no-pub`: salida 0, sin observaciones. `flutter test --no-pub`: salida 0, 23 pruebas aprobadas. Ambos mediante el script de JDK aislado; no se reinstalaron dependencias ni se recompiló.
+- APK existente: 153231524 bytes y SHA-256 `6d03508b1ba328b89729086a124673b2fa91564dde8291373efbcec7bbcde208`, idénticos a la validación Android anterior.
+- Código, pruebas, pubspec, lockfile y configuración del analizador sin diferencias respecto de `b7ecd93`. README revisado y coherente con el proyecto; no fue necesario modificarlo.
+- Inspección de archivos versionados por nombres y patrones de credenciales sin candidatos detectados. Herramientas locales, APK, preferencias locales, archivos de entorno y claves de firma correctamente excluidos. No se afirma una certificación exhaustiva de secretos en el historial.
+- `main` local permanece en `465870f`. Tras consultar el remoto con `git fetch origin main`, `origin/main` apunta a `3d6270a` y contiene ocho commits adicionales que solo modifican README.md.
+- La simulación `git merge-tree --write-tree origin/main HEAD` devolvió 1 por conflicto de contenido exclusivamente en README.md. No se inició un merge, no se modificó main ni se realizó push. La rama remota audit/flutter-books no existía al consultar.
+
+El código queda validado. La integración en el main remoto requiere resolver el conflicto del README en una operación posterior autorizada; no se declara la rama libre de conflictos. Persisten las limitaciones de herramientas Android, avisos de soporte futuro, firma release y ausencia de pruebas en dispositivos descritas anteriormente.
