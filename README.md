@@ -172,3 +172,11 @@ Flutter & Dart · Full-Stack · Backend · AI/Data
 
 - GitHub: https://github.com/MiguelArbelaez0
 - LinkedIn: https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/
+
+---
+
+## 🔎 Alcance y verificación documental (2026-11-02)
+
+`pubspec.yaml` declara `flutter_bloc`, `http` y `shared_preferences`. El código incluye fuentes de datos, repositorios, casos de uso y pruebas de libros/Cubit. La existencia de pruebas no implica que se hayan ejecutado satisfactoriamente en esta revisión.
+
+**Estado de la revisión:** contraste estático entre documentación, estructura y archivos de configuración/código seleccionados. No se ejecutaron compilaciones, pruebas automatizadas, despliegues ni auditorías dinámicas de seguridad. La documentación describe el alcance observado, sin certificar preparación para producción.
