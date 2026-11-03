@@ -1,5 +1,12 @@
 # Flutter Books Clean BLoC
 
+> **Resumen para evaluación técnica**  
+> **Stack:** Flutter · Dart · Cubit · Open Library API · SharedPreferences  
+> **Evidencia:** Demuestra integración de API REST, favoritos locales y separación de datos, dominio y presentación.  
+> **Código relevante:** Para evaluar: `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.  
+> **Verificación:** revisión estática de repositorio; no equivale a ejecución de tests ni certificación de producción.
+
+
 Aplicación móvil desarrollada con Flutter y Dart para descubrir, buscar y guardar libros mediante la API de Open Library, utilizando una estructura basada en Clean Architecture y gestión de estado con BLoC/Cubit.
 
 ## 📱 Descripción general
@@ -14,7 +21,6 @@ La aplicación consume la API de Open Library e incluye persistencia local para 
 
 ```text
 lib/
-├── core/
 ├── data/
 │   ├── datasources/
 │   ├── models/
@@ -22,11 +28,11 @@ lib/
 ├── domain/
 │   ├── entities/
 │   ├── repositories/
-│   └── usecases/
-└── presentation/
-    ├── cubit/
-    ├── pages/
-    └── widgets/
+│   └── use_cases/
+├── presentation/
+│   ├── library_app.dart
+│   └── library_cubit.dart
+└── main.dart
 ```
 
 Flujo principal:
