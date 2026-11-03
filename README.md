@@ -1,6 +1,14 @@
-﻿# Flutter Books Clean BLoC — Libris
+# Flutter Books Clean BLoC — Libris
 
-Aplicación Flutter para descubrir libros en Open Library y guardar favoritos en el dispositivo.
+> **Stack:** Flutter · Dart · Cubit · Open Library API · SharedPreferences
+>
+> **Funcionalidad:** búsqueda y descubrimiento de libros, favoritos locales y separación de datos, dominio y presentación.
+>
+> **Código principal:** `lib/domain/use_cases/`, `lib/presentation/library_cubit.dart`, `test/`.
+>
+> **Pruebas:** 23 pruebas aprobadas; análisis estático sin observaciones.
+
+Aplicación móvil desarrollada con Flutter y Dart para descubrir, buscar y guardar libros mediante la API de Open Library, utilizando una estructura basada en Clean Architecture y gestión de estado con BLoC/Cubit.
 
 ## Funcionalidades
 
@@ -14,7 +22,7 @@ Aplicación Flutter para descubrir libros en Open Library y guardar favoritos en
 
 Los nombres de las secciones de inicio representan consultas de descubrimiento; no son rankings certificados ni recomendaciones personalizadas. No incluye cuentas, sincronización, lectura de libros ni descarga de contenido.
 
-## Arquitectura real
+## Arquitectura
 
 ```text
 lib/
@@ -32,7 +40,7 @@ lib/
     library_app.dart                # Aplicación, navegación y widgets
 ```
 
-Presentation depende del dominio; la implementación de los repositorios y los plugins permanecen en data. `main.dart` conecta las capas. El dominio no importa Flutter ni plugins. Se usa Cubit de `flutter_bloc`, sin Equatable ni un contenedor adicional de inyección.
+La presentación depende del dominio; la implementación de los repositorios y los plugins permanecen en data. `main.dart` conecta las capas. El dominio no importa Flutter ni plugins. Se usa Cubit de `flutter_bloc`, sin Equatable ni un contenedor adicional de inyección.
 
 El Cubit descarta respuestas obsoletas y evita emisiones después del cierre. Las operaciones de escritura de favoritos se serializan en el repositorio. El propietario del cliente HTTP lo cierra al desmontar la aplicación. La lista de búsqueda usa un SliverGrid con construcción diferida.
 
@@ -73,7 +81,6 @@ Si Android Studio aporta un Java incompatible, el script `scripts/flutter-local.
 
 Con el JDK extraído en `.tooling/jdk17/` se puede omitir `-JdkPath`. El script aísla los ajustes Flutter en `.tooling/flutter-config`, establece Java solo para el proceso y restaura su entorno al terminar. `.tooling/` contiene herramientas y registros locales excluidos de Git. No incluye ni descarga automáticamente un JDK.
 
-
 ## API, almacenamiento y seguridad
 
 Se consulta `https://openlibrary.org/search.json` mediante `http`, con parámetros codificados, paginación de 20 libros y timeout de 15 segundos. Las portadas usan HTTPS en `covers.openlibrary.org`. Los errores HTTP y las respuestas con formato inesperado muestran un estado de error; no hay reintentos automáticos ilimitados.
@@ -102,4 +109,9 @@ La auditoría y los resultados ejecutados se detallan en [AUDIT.md](AUDIT.md). L
 
 ## Autor
 
-Miguel Arbeláez Vallejo — [GitHub](https://github.com/MiguelArbelaez0)
+**Miguel Arbeláez Vallejo**
+
+Flutter & Dart · Full-Stack · Backend · AI/Data
+
+- [GitHub](https://github.com/MiguelArbelaez0)
+- [LinkedIn](https://www.linkedin.com/in/miguel-arbelaez-v-57719542b/)

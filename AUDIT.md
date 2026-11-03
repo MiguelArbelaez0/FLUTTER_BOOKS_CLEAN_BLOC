@@ -110,7 +110,7 @@ El análisis y las pruebas no introdujeron advertencias. La compilación Android
 
 `flutter doctor` sigue sin poder comprobar las licencias por falta de cmdline-tools, aunque el SDK instalado permitió este build. No se instalaron herramientas compartidas ni se aceptaron licencias automáticamente. La firma de distribución privada continúa pendiente. No se instaló ni se ejecutó el APK en emulador o dispositivo físico; las comprobaciones de ZIP y firma no certifican funcionamiento en dispositivos.
 
-## Verificación de cierre
+## Verificación de cierre previa a la integración
 
 - Repositorio y rama confirmados: FLUTTER_BOOKS_CLEAN_BLOC, `audit/flutter-books`; commits `b7ecd93`, `1597f7c` y `f4c2f60` conservados.
 - `flutter analyze --no-pub`: salida 0, sin observaciones. `flutter test --no-pub`: salida 0, 23 pruebas aprobadas. Ambos mediante el script de JDK aislado; no se reinstalaron dependencias ni se recompiló.
@@ -120,4 +120,17 @@ El análisis y las pruebas no introdujeron advertencias. La compilación Android
 - `main` local permanece en `465870f`. Tras consultar el remoto con `git fetch origin main`, `origin/main` apunta a `3d6270a` y contiene ocho commits adicionales que solo modifican README.md.
 - La simulación `git merge-tree --write-tree origin/main HEAD` devolvió 1 por conflicto de contenido exclusivamente en README.md. No se inició un merge, no se modificó main ni se realizó push. La rama remota audit/flutter-books no existía al consultar.
 
-El código queda validado. La integración en el main remoto requiere resolver el conflicto del README en una operación posterior autorizada; no se declara la rama libre de conflictos. Persisten las limitaciones de herramientas Android, avisos de soporte futuro, firma release y ausencia de pruebas en dispositivos descritas anteriormente.
+En esa verificación el código quedó validado y la integración permaneció pendiente de autorización para resolver el conflicto del README. Persisten las limitaciones de herramientas Android, avisos de soporte futuro, firma release y ausencia de pruebas en dispositivos descritas anteriormente.
+
+## Integración local y cierre técnico
+
+Se autorizó integrar `origin/main` (`3d6270a`) en `audit/flutter-books`, partiendo de `2fa6720`. El único conflicto fue README.md; se resolvió mediante edición combinada, sin sustituirlo automáticamente por una de las dos versiones. Se conservaron el resumen público y la presentación del autor de GitHub, junto con arquitectura, instalación, JDK aislado, funcionalidades, pruebas y limitaciones verificadas. Se eliminaron las afirmaciones remotas desactualizadas sobre pruebas no verificadas y una carpeta core inexistente.
+
+Validación posterior a la resolución:
+
+- `flutter analyze --no-pub`: salida 0, sin observaciones.
+- `flutter test --no-pub`: salida 0, 23 pruebas aprobadas.
+- Markdown revisado: bloques de código equilibrados, encabezados sin duplicados, enlaces locales existentes y ausencia de marcadores de conflicto.
+- Código, pruebas y dependencias sin cambios respecto del estado previo al merge; solo README.md y AUDIT.md modificados durante esta integración.
+
+El merge local conserva ambos historiales y resuelve el bloqueo de integración anterior. La rama queda preparada para publicación y creación de un PR contra el main remoto consultado. No se modificó main, no se realizó push ni se creó un PR. Las limitaciones de distribución y pruebas en dispositivos ya documentadas permanecen; no impiden integrar estas correcciones.
