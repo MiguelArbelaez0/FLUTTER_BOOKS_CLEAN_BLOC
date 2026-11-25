@@ -1,5 +1,9 @@
 # Flutter Books Clean BLoC — Libris
 
+> **Estado:** Completado  
+> **Versión:** `1.0.0+1 (pubspec.yaml)`  
+> **Tecnologías:** Flutter · Dart · Cubit · Open Library API · SharedPreferences
+
 > **Stack:** Flutter · Dart · Cubit · Open Library API · SharedPreferences
 >
 > **Funcionalidad:** búsqueda y descubrimiento de libros, favoritos locales y separación de datos, dominio y presentación.
